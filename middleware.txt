@@ -1,0 +1,82 @@
+1) create project
+// composer create-project --prefer-dist laravel/laravel project01
+
+2) create controller
+// php artisan make:controller middlewareController
+
+// create functions inside this controller
+class middlewareController extends Controller
+{
+    //
+    public function one(){
+        return view('Home');
+    }
+
+    public function two(){
+        return view('user');
+    }
+
+    public function three(){
+        return view('unauthorized');
+    }
+}
+
+3) create middleware
+//php artisan make:middleware checkage
+
+  public function handle(Request $request, Closure $next)
+    {
+        if($request->age && $request->age<18){
+            return redirect('unauthorized');
+        }
+        return $next($request);
+    }
+
+4) create Blade files
+// unauthorized.blade.php
+<body>
+    <h1>You are below 18 and cannot access this page</h1>
+</body>
+
+// home.blade.php
+<body>
+    <h1>Welcome to the Home Page</h1>
+</body>
+
+//user.blade.php
+<body>
+    <h1>Welcome to the user page</h1>
+</body>
+
+5) Go to app/http/kernel.php
+//create protected middleware and import checkage middleware
+
+    protected $middlewareAliases = [
+        'protectedpage' => \App\Http\Middleware\checkage::class,
+	  ...,
+	  ...
+	];
+6) create routes
+// routes > web.php
+
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\middlewareController;
+
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+//Routes for using Controller in middleware
+Route::get('/home', [middlewareController::class, 'one'])->middleware('protectedpage');
+Route::get('/user', [middlewareController::class, 'two'])->middleware('protectedpage');
+Route::get('/unauthorized', [middlewareController::class, 'three']);
+
+7) run project
+// php artisan serve
+
+http://127.0.0.1:8000/home
+http://127.0.0.1:8000/user
+http://127.0.0.1:8000/user?age=15

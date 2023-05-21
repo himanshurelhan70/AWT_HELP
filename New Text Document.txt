@@ -1,0 +1,30 @@
+//create project 
+composer create-project --prefer-dist laravel/laravel project01
+
+//run project
+cd project01
+php artisan serve
+
+//create controller
+php artisan make:controller UserController
+
+//make datbase in localhost - laraveldb
+
+// update .env file
+DB_DATABASE=laraveldb
+DB_USERNAME=root
+
+// update config > database.php file
+'database' => env('DB_DATABASE', 'laraveldb'),
+'username' => env('DB_USERNAME', 'root'),
+
+//migration
+//it will make "registration" table file inside database > migrations folder
+php artisan make:migration create_registration_table
+
+//to push that registration table in database
+php artisan migrate
+
+
+
+/
