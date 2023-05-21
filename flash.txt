@@ -1,0 +1,72 @@
+///////////////////////// Flash message
+1) create project 
+composer create-project --prefer-dist laravel/laravel project01
+
+2) create controller
+php artisan make:controller flashController
+//app > http>  controllers > flashController
+// import session 
+// create a func. flashUser to extract fromData and set it to Session
+
+<?php
+namespace App\Http\Controllers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+
+class flashController extends Controller
+{
+    function flashUser(Request $request){
+        //extracting form data
+        $userName = $request->input('user');
+        $userMail = $request->input('mail');
+        $userPassword = $request->input('password');
+
+        // setting up form data into session
+        $request->Session()->flash('user', $userName)   ;
+        $request->Session()->flash('mail', $userMail);
+        $request->Session()->flash('password', $userPassword);
+
+        return redirect('flash');
+    }
+}
+
+
+3) create blade file inside resources > views - userFlash.blade.php
+// create a form inside this file and specify text to display after submitting the form
+
+  <h1>Registration Form</h1>
+    <!-- this will run after submitting the form -->
+    @if(Session::has('user'))
+        <h3>Data Saved Successfully for <br>
+         {{Session('user')}} {{Session('mail')}} {{Session('password')}}</h3>
+    @endif
+
+    <!-- csrf - cross site request forgery -->
+    <form action="flash" method="post">
+        @csrf
+        <input type="text" name="user" placeholder="Name">
+        <input type="email" name="mail" placeholder="Email Id"/>
+        <input type="password" name="password" placeholder="password">
+        <input type="submit">
+    </form>
+
+
+
+4) //open routes > web.php
+// import flashController form app/http/controllers folder
+// and define routes for view and post method
+
+<?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FlashController;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::view('flash', 'userflash');
+Route::Post('flash', [FlashController::class, 'flashUser']);
+
+5) To run project
+cd project01
+php artisan serve
